@@ -1,0 +1,30 @@
+{
+  "name": "pdf-generator",
+  "version": "1.0.0",
+  "description": "app to generate pdf",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "canvas": "^2.11.2",
+    "chart.js": "^4.4.1",
+    "d3.js": "^0.0.2-security",
+    "highcharts": "^11.2.0",
+    "hummus": "^1.0.116",
+    "jspdf": "^2.5.1",
+    "pdf-lib": "^1.17.1",
+    "pdf.js": "^0.1.0",
+    "pdfassembler": "^0.1.0-beta.8",
+    "pdfbox": "^0.1.0",
+    "pdfkit": "^0.14.0",
+    "pdfmake": "^0.2.8",
+    "puppeteer": "^21.6.1",
+    "react-native-pdf-lib": "^1.0.0",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
+  }
+}
