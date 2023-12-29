@@ -4,9 +4,9 @@
   "description": "app to generate pdf",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
-    "start:dev": "nodemon main.js",
-    "start:debug": "nodemon --inspect main.js",
+    "start": "node src/main.js",
+    "start:dev": "nodemon src/main.js",
+    "start:debug": "nodemon --inspect src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
