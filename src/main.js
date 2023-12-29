@@ -16,6 +16,28 @@ const parseToCurrency = (value) => {
 	return `RD$ ${parseToMoney(value)}`;
 };
 
+const parseCommasToNumber = (value) => {
+	const newValue = value.replace(',', '');
+	return +newValue;
+};
+
+const formatDate = (date) => {
+	const currentDate = new Date(date);
+	const day = currentDate.getDate();
+	const month = currentDate.getMonth() + 1;
+	const year = currentDate.getFullYear();
+	return `${day}/${month}/${year}`;
+};
+
+const formatStringToDate = (stringDate) => {
+	const splittedString = stringDate.split('/');
+	if(splittedString.length < 3) return new Date();
+	const day = +splittedString[0];
+	const monthIndex = (+splittedString[1]) - 1;
+	const year = +splittedString[2];
+	return new Date(year, monthIndex, day);
+};
+
 const responseFormat = {
 	FILE: 'file',
 	BASE64: 'base64',
@@ -145,7 +167,7 @@ const apiOptions = {
 	timeout: 10000,
 };
 
-const getEdcData = async (accountCode = '1000', period = '122014', batchNumber = '64') => {
+const getEdcData = async (accountCode, period, batchNumber) => {
 	const route = 'get-data';
 	const uri = `${apiUri}/${route}/${accountCode}/${period}/${batchNumber}`;
 	const response = await axiosModule.get(uri, {
@@ -157,7 +179,7 @@ const getEdcData = async (accountCode = '1000', period = '122014', batchNumber =
 	return response;
 };
 
-const getEdcPeriods = async (userDni = '01600089864') => {
+const getEdcPeriods = async (userDni) => {
 	const route = 'get-periodos';
 	const uri = `${apiUri}/${route}/${userDni}`;
 	const response = await axiosModule.get(uri, {
@@ -214,6 +236,11 @@ const server = httpModule.createServer((request, response) => {
 		case 'pdf':
 			if (method === httpMethods.POST) {
 
+				if (!urlQueryParams && !urlQueryParams['response-format']) {
+					badRequest(response, 'NOT_FORMAT_SPECIFIED');
+					return;
+				}
+
 				let bodyString = '';
 
 				request.on('data', (chunk) => {
@@ -229,15 +256,15 @@ const server = httpModule.createServer((request, response) => {
 							userDni,
 						} = JSON.parse(bodyString);
 
-						// const edcDataResponse = await getEdcData(accountCode, period, batchNumber);
-						// const edcObjectData = edcDataResponse.data;
-						// if(!edcObjectData || !edcObjectData.payload || !edcObjectData.payload.data) {
-						//     badRequest(response, 'API AFP Siembra Failed');
-						//     return;
-						// }
-						// const { payload: {
-						//     data: edcData,
-						// } } = edcObjectData;
+						const edcDataResponse = await getEdcData(accountCode, period, batchNumber);
+						const edcObjectData = edcDataResponse.data;
+						if(!edcObjectData || !edcObjectData.payload || !edcObjectData.payload.data) {
+						    badRequest(response, 'API AFP Siembra Failed');
+						    return;
+						}
+						const { payload: {
+						    data: edcData,
+						} } = edcObjectData;
 
 						// const edcPeriodsResponse = await getEdcPeriods(userDni);
 						// const edcPeriodsObjectData = edcPeriodsResponse.data;
@@ -249,14 +276,209 @@ const server = httpModule.createServer((request, response) => {
 						//     data: edcPeriods,
 						// } } = edcPeriodsObjectData;
 
-						// console.log({
-						//     edcData,
-						//     edcPeriods,
-						// })
+						const {
+							numLote,
+							periodo,
+							codCuenta,
+							codUsuario,
+							fecDesde,
+							fecHasta,
+							nomCliente,
+							email,
+							telefono,
+							direccion1,
+							direccion2,
+							direccion3,
+							direccion4,
+							idNss,
+							canMesesAfiliado,
+							canCotizaciones,
+							fecAfiliacion,
+							directorioImagenes,
+							cortes,
+							cortes: [
+								{
+									orden: orden_0,
+									concepto: concepto_0,
+									mtoMesAnio01: mtoMesAnio01_0,
+									mtoMesAnio02: mtoMesAnio02_0,
+									mtoMesAnio03: mtoMesAnio03_0,
+								},
+								{
+									orden: orden_1,
+									concepto: concepto_1,
+									mtoMesAnio01: mtoMesAnio01_1,
+									mtoMesAnio02: mtoMesAnio02_1,
+									mtoMesAnio03: mtoMesAnio03_1,
+								},
+								{
+									orden: orden_2,
+									concepto: concepto_2,
+									mtoMesAnio01: mtoMesAnio01_2,
+									mtoMesAnio02: mtoMesAnio02_2,
+									mtoMesAnio03: mtoMesAnio03_2,
+								},
+								{
+									orden: orden_3,
+									concepto: concepto_3,
+									mtoMesAnio01: mtoMesAnio01_3,
+									mtoMesAnio02: mtoMesAnio02_3,
+									mtoMesAnio03: mtoMesAnio03_3,
+								},
+								{
+									orden: orden_4,
+									concepto: concepto_4,
+									mtoMesAnio01: mtoMesAnio01_4,
+									mtoMesAnio02: mtoMesAnio02_4,
+									mtoMesAnio03: mtoMesAnio03_4,
+								},
+								{
+									orden: orden_5,
+									concepto: concepto_5,
+									mtoMesAnio01: mtoMesAnio01_5,
+									mtoMesAnio02: mtoMesAnio02_5,
+									mtoMesAnio03: mtoMesAnio03_5,
+								},
+							],
+							saldos,
+							saldos: [
+								{ mtoSaldo: mtoSaldo1 },
+								{ mtoSaldo: mtoSaldo2 },
+								{ mtoSaldo: mtoSaldo3 },
+								{ mtoSaldo: mtoSaldo4 },
+							],
+							movimientos,
+							movimientos: [
+								{
+									orden: orden_00,
+									concepto: concepto_00,
+									mtoMes1: mtoMes1_00,
+									mtoMes2: mtoMes2_00,
+									mtoMes3: mtoMes3_00,
+									mtoMes4: mtoMes4_00,
+									mtoMes5: mtoMes5_00,
+									mtoMes6: mtoMes6_00,
+								},
+								{
+									orden: orden_01,
+									concepto: concepto_01,
+									mtoMes1: mtoMes1_01,
+									mtoMes2: mtoMes2_01,
+									mtoMes3: mtoMes3_01,
+									mtoMes4: mtoMes4_01,
+									mtoMes5: mtoMes5_01,
+									mtoMes6: mtoMes6_01,
+								},
+								{
+									orden: orden_02,
+									concepto: concepto_02,
+									mtoMes1: mtoMes1_02,
+									mtoMes2: mtoMes2_02,
+									mtoMes3: mtoMes3_02,
+									mtoMes4: mtoMes4_02,
+									mtoMes5: mtoMes5_02,
+									mtoMes6: mtoMes6_02,
+								},
+								{
+									orden: orden_03,
+									concepto: concepto_03,
+									mtoMes1: mtoMes1_03,
+									mtoMes2: mtoMes2_03,
+									mtoMes3: mtoMes3_03,
+									mtoMes4: mtoMes4_03,
+									mtoMes5: mtoMes5_03,
+									mtoMes6: mtoMes6_03,
+								},
+								{
+									orden: orden_04,
+									concepto: concepto_04,
+									mtoMes1: mtoMes1_04,
+									mtoMes2: mtoMes2_04,
+									mtoMes3: mtoMes3_04,
+									mtoMes4: mtoMes4_04,
+									mtoMes5: mtoMes5_04,
+									mtoMes6: mtoMes6_04,
+								},
+								{
+									orden: orden_05,
+									concepto: concepto_05,
+									mtoMes1: mtoMes1_05,
+									mtoMes2: mtoMes2_05,
+									mtoMes3: mtoMes3_05,
+									mtoMes4: mtoMes4_05,
+									mtoMes5: mtoMes5_05,
+									mtoMes6: mtoMes6_05,
+								},
+								{
+									orden: orden_06,
+									concepto: concepto_06,
+									mtoMes1: mtoMes1_06,
+									mtoMes2: mtoMes2_06,
+									mtoMes3: mtoMes3_06,
+									mtoMes4: mtoMes4_06,
+									mtoMes5: mtoMes5_06,
+									mtoMes6: mtoMes6_06,
+								},
+								{
+									orden: orden_07,
+									concepto: concepto_07,
+									mtoMes1: mtoMes1_07,
+									mtoMes2: mtoMes2_07,
+									mtoMes3: mtoMes3_07,
+									mtoMes4: mtoMes4_07,
+									mtoMes5: mtoMes5_07,
+									mtoMes6: mtoMes6_07,
+								},
+								{
+									orden: orden_08,
+									concepto: concepto_08,
+									mtoMes1: mtoMes1_08,
+									mtoMes2: mtoMes2_08,
+									mtoMes3: mtoMes3_08,
+									mtoMes4: mtoMes4_08,
+									mtoMes5: mtoMes5_08,
+									mtoMes6: mtoMes6_08,
+								},
+								{
+									orden: orden_09,
+									concepto: concepto_09,
+									mtoMes1: mtoMes1_09,
+									mtoMes2: mtoMes2_09,
+									mtoMes3: mtoMes3_09,
+									mtoMes4: mtoMes4_09,
+									mtoMes5: mtoMes5_09,
+									mtoMes6: mtoMes6_09,
+								},
+								{
+									orden: orden_010,
+									concepto: concepto_010,
+									mtoMes1: mtoMes1_010,
+									mtoMes2: mtoMes2_010,
+									mtoMes3: mtoMes3_010,
+									mtoMes4: mtoMes4_010,
+									mtoMes5: mtoMes5_010,
+									mtoMes6: mtoMes6_010,
+								},
+							],
+							fondos,
+							fondos: {
+								mtoSaldoIni,
+								totMovimientos,
+								mtoRendimiento,
+								mtoEgresos,
+								mtoSaldoFin,
+								fechaCorte,
+								pctComisComp,
+								totalComisiones,
+								valorCuotaIniRentab,
+								valorCuota,
+								pctRentAnual,
+							},
+						} = edcData;
 
-						let format = '';
-						if (!!urlQueryParams && urlQueryParams['response-format'])
-							format = urlQueryParams['response-format'];
+						// const { } = edcPeriods;
+
+						const format = urlQueryParams['response-format'];
 
 						const filesFolder = `${__dirname}/assets`;
 						const pdfFolder = `${filesFolder}/pdf/`;
@@ -301,7 +523,8 @@ const server = httpModule.createServer((request, response) => {
 						const thirdFontSize = 6;
 						const fourthFontSize = 5;
 
-						const initialAmountParsed = parseToCurrency(Math.random() * 50000);
+						const initialAmountNumber = parseCommasToNumber(mtoSaldo1);
+						const initialAmountParsed = parseToCurrency(initialAmountNumber) || parseToCurrency(Math.random() * 50000);
 						const initialAmountSize = helveticaBoldFont.widthOfTextAtSize(initialAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(initialAmountParsed, {
 							x: firstPageWidth - 480 - initialAmountSize,
@@ -312,7 +535,8 @@ const server = httpModule.createServer((request, response) => {
 							rotate: degrees(0),
 						});
 
-						const periodAmountParsed = parseToCurrency(Math.random() * 10000);
+						const periodAmountNumber = parseCommasToNumber(mtoSaldo2);
+						const periodAmountParsed = parseToCurrency(periodAmountNumber) || parseToCurrency(Math.random() * 10000);
 						const periodAmountSize = helveticaBoldFont.widthOfTextAtSize(periodAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(periodAmountParsed, {
 							x: firstPageWidth - 372 - periodAmountSize,
@@ -323,7 +547,8 @@ const server = httpModule.createServer((request, response) => {
 							rotate: degrees(0),
 						});
 
-						const periodPerformanceAmountParsed = parseToCurrency(Math.random() * 1000);
+						const periodPerformanceAmountNumber = parseCommasToNumber(mtoSaldo3);
+						const periodPerformanceAmountParsed = parseToCurrency(periodPerformanceAmountNumber) || parseToCurrency(Math.random() * 1000);
 						const periodPerformanceAmountSize = helveticaBoldFont.widthOfTextAtSize(periodPerformanceAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(periodPerformanceAmountParsed, {
 							x: firstPageWidth - 264 - periodPerformanceAmountSize,
@@ -334,7 +559,8 @@ const server = httpModule.createServer((request, response) => {
 							rotate: degrees(0),
 						});
 
-						const expensesParsed = parseToCurrency(Math.random() * 10000);
+						const expensesNumber = parseCommasToNumber(mtoSaldo4);
+						const expensesParsed = parseToCurrency(expensesNumber) || parseToCurrency(Math.random() * 10000);
 						const expensesSize = helveticaBoldFont.widthOfTextAtSize(expensesParsed, firstFontSize);
 						pdfFirstPage.drawText(expensesParsed, {
 							x: firstPageWidth - 156 - expensesSize,
@@ -345,7 +571,14 @@ const server = httpModule.createServer((request, response) => {
 							rotate: degrees(0),
 						});
 
-						const individualAmountParsed = parseToCurrency(Math.random() * 1000000);
+						const individualAmountNumber
+							= initialAmountNumber
+							+ periodAmountNumber
+							+ periodPerformanceAmountNumber
+							- expensesNumber;
+						const individualAmountParsed 
+							= parseToCurrency(individualAmountNumber)
+							|| parseToCurrency(Math.random() * 1000000);
 						const individualAmountSize = helveticaBoldFont.widthOfTextAtSize(individualAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(individualAmountParsed, {
 							x: firstPageWidth - 48 - individualAmountSize,
@@ -357,8 +590,9 @@ const server = httpModule.createServer((request, response) => {
 
 						});
 
-						const textCutOff1 = 'Al corte del 01 de';
-						const textCutOff2 = 'Abril de 2023';
+						const cutOffDateSplitted = fechaCorte.split(' ');
+						const textCutOff1 = `Al corte del ${cutOffDateSplitted.slice(0, 2).join(' ') || '01 de'}`;
+						const textCutOff2 = cutOffDateSplitted.slice(2).join(' ') || 'Abril de 2023';
 
 						const textsCutOffTable = [
 							textCutOff1,
@@ -381,50 +615,9 @@ const server = httpModule.createServer((request, response) => {
 							});
 						});
 
-						const nameKey = 'Nombre';
-						const emailKey = 'Correo Electrónico';
-						const phoneKey = 'Teléfono';
-						const addressKey = 'Dirección';
-						const socialSecurityNumberKey = 'Número de Seguridad Social';
-						const affiliatedMonthsQuantityKey = 'Cantidad de Meses Afiliado';
-						const quotesQuantityKey = 'Cantidad de Cotizaciones';
-						const affiliatedDateKey = 'Fecha de Afiliación';
-
-						const name = 'ABel';
-						const email = 'abelbatiista@gmail.com';
-						const phone = '+1 (829) 642-3371';
-						const address = 'Calle San Antonio 5, Los Minas Norte';
-						const socialSecurityNumber = '124562332147';
-						const affiliatedMonthsQuantity = '60';
-						const quotesQuantity = '98';
-						const affiliatedDate = '25/09/2015';
-
-						const firstTable = [
-							[
-								`• ${nameKey}: `,
-								`• ${emailKey}: `,
-								`• ${phoneKey}: `,
-								`• ${addressKey}: `,
-								`• ${socialSecurityNumberKey}: `,
-								`• ${affiliatedMonthsQuantityKey}: `,
-								`• ${quotesQuantityKey}: `,
-								`• ${affiliatedDateKey}: `,
-							],
-							[
-								`${name}`,
-								`${email}`,
-								`${phone}`,
-								`${address}`,
-								`${socialSecurityNumber}`,
-								`${affiliatedMonthsQuantity}`,
-								`${quotesQuantity}`,
-								`${affiliatedDate}`,
-							],
-						];
-
 						const headerKey = 'Período';
-						const headerStartDate = '01/06/2023';
-						const headerEndDate = '30/09/2023';
+						const headerStartDate = fecDesde || '01/06/2023';
+						const headerEndDate = fecHasta || '30/09/2023';
 						const headerTitle = `${headerKey}: ${headerStartDate} - ${headerEndDate}`;
 
 						pdfFirstPage.drawText(headerTitle, {
@@ -436,7 +629,48 @@ const server = httpModule.createServer((request, response) => {
 							rotate: degrees(0),
 						});
 
-						firstTable.forEach((firstValue, firstIndex, firstArray) => {
+						const informationNameKey = 'Nombre';
+						const informationEmailKey = 'Correo Electrónico';
+						const informationPhoneKey = 'Teléfono';
+						const informationAddressKey = 'Dirección';
+						const informationSocialSecurityNumberKey = 'Número de Seguridad Social';
+						const informationAffiliatedMonthsQuantityKey = 'Cantidad de Meses Afiliado';
+						const informationQuotesQuantityKey = 'Cantidad de Cotizaciones';
+						const informationAffiliatedDateKey = 'Fecha de Afiliación';
+
+						const informationName = nomCliente || 'ABel';
+						const informationEmail = email || 'abelbatiista@gmail.com';
+						const informationPhone = telefono || '+1 (829) 642-3371';
+						const informationAddress = direccion1 || direccion2 || direccion3 || direccion4 || 'Calle San Antonio 5, Los Minas Norte';
+						const informationSocialSecurityNumber = '124562332147';
+						const informationAffiliatedMonthsQuantity = canMesesAfiliado || '60';
+						const informationQuotesQuantity = canCotizaciones || '98';
+						const informationAffiliatedDate = !!fecAfiliacion ? formatDate(fecAfiliacion) : '25/09/2015';
+
+						const informationTable = [
+							[
+								`• ${informationNameKey}: `,
+								`• ${informationEmailKey}: `,
+								`• ${informationPhoneKey}: `,
+								`• ${informationAddressKey}: `,
+								`• ${informationSocialSecurityNumberKey}: `,
+								`• ${informationAffiliatedMonthsQuantityKey}: `,
+								`• ${informationQuotesQuantityKey}: `,
+								`• ${informationAffiliatedDateKey}: `,
+							],
+							[
+								`${informationName}`,
+								`${informationEmail}`,
+								`${informationPhone}`,
+								`${informationAddress}`,
+								`${informationSocialSecurityNumber}`,
+								`${informationAffiliatedMonthsQuantity}`,
+								`${informationQuotesQuantity}`,
+								`${informationAffiliatedDate}`,
+							],
+						];
+
+						informationTable.forEach((firstValue, firstIndex, firstArray) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const fontValue = firstIndex === 0 ? helveticaBoldFont : helveticaFont;
 								const keyWidth = firstIndex === 0 ? 0 : helveticaBoldFont.widthOfTextAtSize(firstArray[0][secondIndex], secondFontSize);
@@ -456,93 +690,93 @@ const server = httpModule.createServer((request, response) => {
 							});
 						});
 
-						const movementsKey = 'Movimientos';
-						const contributeKey = 'Lo que Aportas a tu Cuenta RD$';
-						const employerContributeKey = 'Lo que Aporta tu Empleador a tu Cuenta RD$';
-						const ordinaryVolunteerContributeKey = 'Tus Aportes Voluntarios Ordinarios RD$';
-						const extraordinaryVolunteerContributeKey = 'Tus Aportes Voluntarios Extraordinarios RD$';
-						const otherReceiveContributeKey = 'Otros Aportes Recibidos RD$';
-						const accountNetReturnKey = 'Rendimiento Neto de tu Cuenta RD$';
-						const expenseKey = 'Egresos RD$';
-						const monthTotalMovementKey = 'Total Movimientos del Mes RD$';
-						const totalAccumulatedKey = 'Total Acumulado RD$';
-						const accumulatedFeeQuantityKey = 'Cantidad de Cuotas Acumuladas';
+						const movementsTitleKey = concepto_00 || 'Movimientos';
+						const contributeKey = concepto_01 || 'Lo que Aportas a tu Cuenta RD$';
+						const employerContributeKey = concepto_02 || 'Lo que Aporta tu Empleador a tu Cuenta RD$';
+						const ordinaryVolunteerContributeKey = concepto_03 || 'Tus Aportes Voluntarios Ordinarios RD$';
+						const extraordinaryVolunteerContributeKey = concepto_04 || 'Tus Aportes Voluntarios Extraordinarios RD$';
+						const otherReceiveContributeKey = concepto_05 || 'Otros Aportes Recibidos RD$';
+						const accountNetReturnKey = concepto_06 || 'Rendimiento Neto de tu Cuenta RD$';
+						const expenseKey = concepto_07 || 'Egresos RD$';
+						const monthTotalMovementKey = concepto_08 || 'Total Movimientos del Mes RD$';
+						const totalAccumulatedKey = concepto_09 || 'Total Acumulado RD$';
+						const accumulatedFeeQuantityKey = concepto_010 || 'Cantidad de Cuotas Acumuladas';
 
-						const month1 = 'Abril';
-						const contributeMonth1 = parseToMoney(Math.random() * 100000);
-						const employerContributeMonth1 = parseToMoney(Math.random() * 100000);
-						const ordinaryVolunteerContributeMonth1 = parseToMoney(Math.random() * 100000);
-						const extraordinaryVolunteerContributeMonth1 = parseToMoney(Math.random() * 100000);
-						const otherReceiveContributeMonth1 = parseToMoney(Math.random() * 100000);
-						const accountNetReturnMonth1 = parseToMoney(Math.random() * 100000);
-						const expenseMonth1 = parseToMoney(Math.random() * 100000);
-						const monthTotalMovementMonth1 = parseToMoney(Math.random() * 100000);
-						const totalAccumulatedMonth1 = parseToMoney(Math.random() * 100000);
-						const accumulatedFeeQuantityMonth1 = parseToMoney(Math.random() * 100000);
+						const month1 = mtoMes1_00 || 'Abril';
+						const contributeMonth1 = parseToMoney(mtoMes1_01 || Math.random() * 100000);
+						const employerContributeMonth1 = parseToMoney(mtoMes1_02 || Math.random() * 100000);
+						const ordinaryVolunteerContributeMonth1 = parseToMoney(mtoMes1_03 || Math.random() * 100000);
+						const extraordinaryVolunteerContributeMonth1 = parseToMoney(mtoMes1_04 || Math.random() * 100000);
+						const otherReceiveContributeMonth1 = parseToMoney(mtoMes1_05 || Math.random() * 100000);
+						const accountNetReturnMonth1 = parseToMoney(mtoMes1_06 || Math.random() * 100000);
+						const expenseMonth1 = parseToMoney(mtoMes1_07 || Math.random() * 100000);
+						const monthTotalMovementMonth1 = parseToMoney(mtoMes1_08 || Math.random() * 100000);
+						const totalAccumulatedMonth1 = parseToMoney(mtoMes1_09 || Math.random() * 100000);
+						const accumulatedFeeQuantityMonth1 = parseToMoney(mtoMes1_010 || Math.random() * 100000);
 
-						const month2 = 'Mayo';
-						const contributeMonth2 = parseToMoney(Math.random() * 100000);
-						const employerContributeMonth2 = parseToMoney(Math.random() * 100000);
-						const ordinaryVolunteerContributeMonth2 = parseToMoney(Math.random() * 100000);
-						const extraordinaryVolunteerContributeMonth2 = parseToMoney(Math.random() * 100000);
-						const otherReceiveContributeMonth2 = parseToMoney(Math.random() * 100000);
-						const accountNetReturnMonth2 = parseToMoney(Math.random() * 100000);
-						const expenseMonth2 = parseToMoney(Math.random() * 100000);
-						const monthTotalMovementMonth2 = parseToMoney(Math.random() * 100000);
-						const totalAccumulatedMonth2 = parseToMoney(Math.random() * 100000);
-						const accumulatedFeeQuantityMonth2 = parseToMoney(Math.random() * 100000);
+						const month2 = mtoMes2_00 || 'Mayo';
+						const contributeMonth2 = parseToMoney(mtoMes2_01 || Math.random() * 100000);
+						const employerContributeMonth2 = parseToMoney(mtoMes2_02 || Math.random() * 100000);
+						const ordinaryVolunteerContributeMonth2 = parseToMoney(mtoMes2_03 || Math.random() * 100000);
+						const extraordinaryVolunteerContributeMonth2 = parseToMoney(mtoMes2_04 || Math.random() * 100000);
+						const otherReceiveContributeMonth2 = parseToMoney(mtoMes2_05 || Math.random() * 100000);
+						const accountNetReturnMonth2 = parseToMoney(mtoMes2_06 || Math.random() * 100000);
+						const expenseMonth2 = parseToMoney(mtoMes2_07 || Math.random() * 100000);
+						const monthTotalMovementMonth2 = parseToMoney(mtoMes2_08 || Math.random() * 100000);
+						const totalAccumulatedMonth2 = parseToMoney(mtoMes2_09 || Math.random() * 100000);
+						const accumulatedFeeQuantityMonth2 = parseToMoney(mtoMes2_010 || Math.random() * 100000);
 
-						const month3 = 'Junio';
-						const contributeMonth3 = parseToMoney(Math.random() * 100000);
-						const employerContributeMonth3 = parseToMoney(Math.random() * 100000);
-						const ordinaryVolunteerContributeMonth3 = parseToMoney(Math.random() * 100000);
-						const extraordinaryVolunteerContributeMonth3 = parseToMoney(Math.random() * 100000);
-						const otherReceiveContributeMonth3 = parseToMoney(Math.random() * 100000);
-						const accountNetReturnMonth3 = parseToMoney(Math.random() * 100000);
-						const expenseMonth3 = parseToMoney(Math.random() * 100000);
-						const monthTotalMovementMonth3 = parseToMoney(Math.random() * 100000);
-						const totalAccumulatedMonth3 = parseToMoney(Math.random() * 100000);
-						const accumulatedFeeQuantityMonth3 = parseToMoney(Math.random() * 100000);
+						const month3 = mtoMes3_00 || 'Junio';
+						const contributeMonth3 = parseToMoney(mtoMes3_01 || Math.random() * 100000);
+						const employerContributeMonth3 = parseToMoney(mtoMes3_02 || Math.random() * 100000);
+						const ordinaryVolunteerContributeMonth3 = parseToMoney(mtoMes3_03 || Math.random() * 100000);
+						const extraordinaryVolunteerContributeMonth3 = parseToMoney(mtoMes3_04 || Math.random() * 100000);
+						const otherReceiveContributeMonth3 = parseToMoney(mtoMes3_05 || Math.random() * 100000);
+						const accountNetReturnMonth3 = parseToMoney(mtoMes3_06 || Math.random() * 100000);
+						const expenseMonth3 = parseToMoney(mtoMes3_07 || Math.random() * 100000);
+						const monthTotalMovementMonth3 = parseToMoney(mtoMes3_08 || Math.random() * 100000);
+						const totalAccumulatedMonth3 = parseToMoney(mtoMes3_09 || Math.random() * 100000);
+						const accumulatedFeeQuantityMonth3 = parseToMoney(mtoMes3_010 || Math.random() * 100000);
 
-						const month4 = 'Julio';
-						const contributeMonth4 = parseToMoney(Math.random() * 100000);
-						const employerContributeMonth4 = parseToMoney(Math.random() * 100000);
-						const ordinaryVolunteerContributeMonth4 = parseToMoney(Math.random() * 100000);
-						const extraordinaryVolunteerContributeMonth4 = parseToMoney(Math.random() * 100000);
-						const otherReceiveContributeMonth4 = parseToMoney(Math.random() * 100000);
-						const accountNetReturnMonth4 = parseToMoney(Math.random() * 100000);
-						const expenseMonth4 = parseToMoney(Math.random() * 100000);
-						const monthTotalMovementMonth4 = parseToMoney(Math.random() * 100000);
-						const totalAccumulatedMonth4 = parseToMoney(Math.random() * 100000);
-						const accumulatedFeeQuantityMonth4 = parseToMoney(Math.random() * 100000);
+						const month4 = mtoMes4_00 || 'Julio';
+						const contributeMonth4 = parseToMoney(mtoMes4_01 || Math.random() * 100000);
+						const employerContributeMonth4 = parseToMoney(mtoMes4_02 || Math.random() * 100000);
+						const ordinaryVolunteerContributeMonth4 = parseToMoney(mtoMes4_03 || Math.random() * 100000);
+						const extraordinaryVolunteerContributeMonth4 = parseToMoney(mtoMes4_04 || Math.random() * 100000);
+						const otherReceiveContributeMonth4 = parseToMoney(mtoMes4_05 || Math.random() * 100000);
+						const accountNetReturnMonth4 = parseToMoney(mtoMes4_06 || Math.random() * 100000);
+						const expenseMonth4 = parseToMoney(mtoMes4_07 || Math.random() * 100000);
+						const monthTotalMovementMonth4 = parseToMoney(mtoMes4_08 || Math.random() * 100000);
+						const totalAccumulatedMonth4 = parseToMoney(mtoMes4_09 || Math.random() * 100000);
+						const accumulatedFeeQuantityMonth4 = parseToMoney(mtoMes4_010 || Math.random() * 100000);
 
-						const month5 = 'Agosto';
-						const contributeMonth5 = parseToMoney(Math.random() * 100000);
-						const employerContributeMonth5 = parseToMoney(Math.random() * 100000);
-						const ordinaryVolunteerContributeMonth5 = parseToMoney(Math.random() * 100000);
-						const extraordinaryVolunteerContributeMonth5 = parseToMoney(Math.random() * 100000);
-						const otherReceiveContributeMonth5 = parseToMoney(Math.random() * 100000);
-						const accountNetReturnMonth5 = parseToMoney(Math.random() * 100000);
-						const expenseMonth5 = parseToMoney(Math.random() * 100000);
-						const monthTotalMovementMonth5 = parseToMoney(Math.random() * 100000);
-						const totalAccumulatedMonth5 = parseToMoney(Math.random() * 100000);
-						const accumulatedFeeQuantityMonth5 = parseToMoney(Math.random() * 100000);
+						const month5 = mtoMes5_00 || 'Agosto';
+						const contributeMonth5 = parseToMoney(mtoMes5_01 || Math.random() * 100000);
+						const employerContributeMonth5 = parseToMoney(mtoMes5_02 || Math.random() * 100000);
+						const ordinaryVolunteerContributeMonth5 = parseToMoney(mtoMes5_03 || Math.random() * 100000);
+						const extraordinaryVolunteerContributeMonth5 = parseToMoney(mtoMes5_04 || Math.random() * 100000);
+						const otherReceiveContributeMonth5 = parseToMoney(mtoMes5_05 || Math.random() * 100000);
+						const accountNetReturnMonth5 = parseToMoney(mtoMes5_06 || Math.random() * 100000);
+						const expenseMonth5 = parseToMoney(mtoMes5_07 || Math.random() * 100000);
+						const monthTotalMovementMonth5 = parseToMoney(mtoMes5_08 || Math.random() * 100000);
+						const totalAccumulatedMonth5 = parseToMoney(mtoMes5_09 || Math.random() * 100000);
+						const accumulatedFeeQuantityMonth5 = parseToMoney(mtoMes5_010 || Math.random() * 100000);
 
-						const month6 = 'Septiembre';
-						const contributeMonth6 = parseToMoney(Math.random() * 100000);
-						const employerContributeMonth6 = parseToMoney(Math.random() * 100000);
-						const ordinaryVolunteerContributeMonth6 = parseToMoney(Math.random() * 100000);
-						const extraordinaryVolunteerContributeMonth6 = parseToMoney(Math.random() * 100000);
-						const otherReceiveContributeMonth6 = parseToMoney(Math.random() * 100000);
-						const accountNetReturnMonth6 = parseToMoney(Math.random() * 100000);
-						const expenseMonth6 = parseToMoney(Math.random() * 100000);
-						const monthTotalMovementMonth6 = parseToMoney(Math.random() * 100000);
-						const totalAccumulatedMonth6 = parseToMoney(Math.random() * 100000);
-						const accumulatedFeeQuantityMonth6 = parseToMoney(Math.random() * 100000);
+						const month6 = mtoMes6_00 || 'Septiembre';
+						const contributeMonth6 = parseToMoney(mtoMes6_01 || Math.random() * 100000);
+						const employerContributeMonth6 = parseToMoney(mtoMes6_02 || Math.random() * 100000);
+						const ordinaryVolunteerContributeMonth6 = parseToMoney(mtoMes6_03 || Math.random() * 100000);
+						const extraordinaryVolunteerContributeMonth6 = parseToMoney(mtoMes6_04 || Math.random() * 100000);
+						const otherReceiveContributeMonth6 = parseToMoney(mtoMes6_05 || Math.random() * 100000);
+						const accountNetReturnMonth6 = parseToMoney(mtoMes6_06 || Math.random() * 100000);
+						const expenseMonth6 = parseToMoney(mtoMes6_07 || Math.random() * 100000);
+						const monthTotalMovementMonth6 = parseToMoney(mtoMes6_08 || Math.random() * 100000);
+						const totalAccumulatedMonth6 = parseToMoney(mtoMes6_09 || Math.random() * 100000);
+						const accumulatedFeeQuantityMonth6 = parseToMoney(mtoMes6_010 || Math.random() * 100000);
 
-						const secondTable = [
+						const movementsTable = [
 							[
-								movementsKey,
+								movementsTitleKey,
 								contributeKey,
 								employerContributeKey,
 								ordinaryVolunteerContributeKey,
@@ -634,7 +868,7 @@ const server = httpModule.createServer((request, response) => {
 							],
 						];
 
-						secondTable.forEach((firstValue, firstIndex) => {
+						movementsTable.forEach((firstValue, firstIndex) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const especialTitles = [0, 8, 9, 10];
 								const fontValue = especialTitles.includes(secondIndex) ? helveticaBoldFont : helveticaFont;
@@ -659,33 +893,33 @@ const server = httpModule.createServer((request, response) => {
 							});
 						});
 
-						const periodBalanceKey = 'SALDO ACUMULADO EN CCI';
-						const periodInitialBalanceKey = 'Saldo Inicial RD$';
-						const periodContributionsKey = 'Aportes RD$';
-						const periodExpensesKey = 'Egresos RD$';
-						const periodNetReturnKey = 'Rendimiento Neto RD$';
-						const periodTotalBalanceKey = 'Total Saldo RD$';
+						const periodBalanceKey = concepto_0 || 'SALDO ACUMULADO EN CCI';
+						const periodInitialBalanceKey = concepto_1 || 'Saldo Inicial RD$';
+						const periodContributionsKey = concepto_2 || 'Aportes RD$';
+						const periodExpensesKey = concepto_3 || 'Egresos RD$';
+						const periodNetReturnKey = concepto_4 || 'Rendimiento Neto RD$';
+						const periodTotalBalanceKey = concepto_5 || 'Total Saldo RD$';
 
-						const periodMonth1 = 'Jun.2022';
-						const periodInitialBalanceMonth1 = parseToMoney(Math.random() * 100000);
-						const periodContributionsMonth1 = parseToMoney(Math.random() * 100000);
-						const periodExpensesMonth1 = parseToMoney(Math.random() * 100000);
-						const periodNetReturnMonth1 = parseToMoney(Math.random() * 100000);
-						const periodTotalBalanceMonth1 = parseToMoney(Math.random() * 100000);
+						const periodMonth1 = mtoMesAnio01_0 || 'Jun.2022';
+						const periodInitialBalanceMonth1 = parseToMoney(mtoMesAnio01_1 || Math.random() * 100000);
+						const periodContributionsMonth1 = parseToMoney(mtoMesAnio01_2 || Math.random() * 100000);
+						const periodExpensesMonth1 = parseToMoney(mtoMesAnio01_3 || Math.random() * 100000);
+						const periodNetReturnMonth1 = parseToMoney(mtoMesAnio01_4 || Math.random() * 100000);
+						const periodTotalBalanceMonth1 = parseToMoney(mtoMesAnio01_5 || Math.random() * 100000);
 
-						const periodMonth2 = 'Jul.2022';
-						const periodInitialBalanceMonth2 = parseToMoney(Math.random() * 100000);
-						const periodContributionsMonth2 = parseToMoney(Math.random() * 100000);
-						const periodExpensesMonth2 = parseToMoney(Math.random() * 100000);
-						const periodNetReturnMonth2 = parseToMoney(Math.random() * 100000);
-						const periodTotalBalanceMonth2 = parseToMoney(Math.random() * 100000);
+						const periodMonth2 = mtoMesAnio02_0 || 'Jul.2022';
+						const periodInitialBalanceMonth2 = parseToMoney(mtoMesAnio02_1 || Math.random() * 100000);
+						const periodContributionsMonth2 = parseToMoney(mtoMesAnio02_2 || Math.random() * 100000);
+						const periodExpensesMonth2 = parseToMoney(mtoMesAnio02_3 || Math.random() * 100000);
+						const periodNetReturnMonth2 = parseToMoney(mtoMesAnio02_4 || Math.random() * 100000);
+						const periodTotalBalanceMonth2 = parseToMoney(mtoMesAnio02_5 || Math.random() * 100000);
 
-						const periodMonth3 = 'Ago.2022';
-						const periodInitialBalanceMonth3 = parseToMoney(Math.random() * 100000);
-						const periodContributionsMonth3 = parseToMoney(Math.random() * 100000);
-						const periodExpensesMonth3 = parseToMoney(Math.random() * 100000);
-						const periodNetReturnMonth3 = parseToMoney(Math.random() * 100000);
-						const periodTotalBalanceMonth3 = parseToMoney(Math.random() * 100000);
+						const periodMonth3 = mtoMesAnio03_0 || 'Ago.2022';
+						const periodInitialBalanceMonth3 = parseToMoney(mtoMesAnio03_1 || Math.random() * 100000);
+						const periodContributionsMonth3 = parseToMoney(mtoMesAnio03_2 || Math.random() * 100000);
+						const periodExpensesMonth3 = parseToMoney(mtoMesAnio03_3 || Math.random() * 100000);
+						const periodNetReturnMonth3 = parseToMoney(mtoMesAnio03_4 || Math.random() * 100000);
+						const periodTotalBalanceMonth3 = parseToMoney(mtoMesAnio03_5 || Math.random() * 100000);
 
 						const periodsTable = [
 							[
@@ -747,8 +981,8 @@ const server = httpModule.createServer((request, response) => {
 							});
 						});
 
-						const commissionCollectedAnnual = 'Comisión Anual Sobre Saldo Administrado (1.05%)*';
-						const commissionCollectedAnnualPrice = parseToMoney(Math.random() * 100000);
+						const commissionCollectedAnnual = `Comisión Anual Sobre Saldo Administrado (${pctComisComp || 1.05}%)*`;
+						const commissionCollectedAnnualPrice = parseToMoney(totalComisiones || Math.random() * 100000);
 
 						const commissionTable = [
 							commissionCollectedAnnual,
@@ -757,7 +991,7 @@ const server = httpModule.createServer((request, response) => {
 
 						commissionTable.forEach((value, index) => {
 							const widthConstant = 45;
-							const widthSpecial = 250;
+							const widthSpecial = 265;
 							const widthRange = index === 0 ? 0 : widthSpecial;
 							const widthValue = widthConstant + widthRange;
 							const heightConstant = 595;
@@ -796,13 +1030,15 @@ const server = httpModule.createServer((request, response) => {
 							});
 						});
 
-						const effectivenessPreviousPeriodKey = 'Valor Cuota Período Anterior (30/09/2022)';
-						const effectivenessActualPeriodKey = 'Valor Cuota Período Actual (30/09/2023)';
+						const actualDate = formatStringToDate(fecDesde);
+						const previousDate = new Date(actualDate.setFullYear(actualDate.getFullYear() - 1));
+						const effectivenessPreviousPeriodKey = `Valor Cuota Período Anterior (${formatDate(previousDate) || '30/09/2022'})`;
+						const effectivenessActualPeriodKey = `Valor Cuota Período Actual (${fecDesde || '30/09/2023'})`;
 						const effectivenessAnnualNominalKey = 'Rentabilidad Nominal Actualizada';
-
-						const effectivenessPreviousPeriod = parseToMoney(Math.random() * 100000);
-						const effectivenessActualPeriod = parseToMoney(Math.random() * 100000);
-						const effectivenessAnnualNominal = '12.65%';
+						
+						const effectivenessPreviousPeriod = parseToMoney(valorCuotaIniRentab || Math.random() * 100000);
+						const effectivenessActualPeriod = parseToMoney(valorCuota || Math.random() * 100000);
+						const effectivenessAnnualNominal = `${pctRentAnual || '12.65'}%`;
 
 						const effectivenessTable = [
 							[
