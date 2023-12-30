@@ -12,8 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@img/sharp-win32-x64": "^0.33.1",
     "axios": "^1.6.2",
     "pdf-lib": "^1.17.1",
+    "sharp": "^0.33.1",
     "uuid": "^9.0.1"
   }
 }

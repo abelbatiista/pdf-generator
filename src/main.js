@@ -7,6 +7,7 @@ const { degrees, PDFDocument, rgb, StandardFonts } = pdfModule;
 const axiosModule = require('axios');
 const uuidModule = require('uuid');
 const { v4: uuidv4 } = uuidModule;
+const sharpModule = require('sharp');
 
 const parseToMoney = (value) => {
 	return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -179,15 +180,25 @@ const getEdcData = async (accountCode, period, batchNumber) => {
 	return response;
 };
 
-const getEdcPeriods = async (userDni) => {
-	const route = 'get-periodos';
-	const uri = `${apiUri}/${route}/${userDni}`;
-	const response = await axiosModule.get(uri, {
-		...apiOptions,
-		params: {
-			canal: 'PortalBe',
-		},
-	});
+const imageRequestOptions = {
+	responseType: 'arraybuffer',
+};
+
+const getEdcHistoricImage = async () => {
+	const uri = 'https://afpsiembrafileshare.file.core.windows.net/notificaciones/EDC/Historico/2023_12/EDC_DISTRIBUCION.gif?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2029-11-01T23:58:32Z&st=2023-09-12T15:58:32Z&spr=https&sig=ZVVaA%2BrSZVm95YCa8XyESWzNIDmYd6BV%2Fc%2FZyt7flUE%3D';
+	const response = await axiosModule.get(uri, { ...imageRequestOptions });
+	return response;
+};
+
+const getEdcCurrencyImage = async () => {
+	const uri = 'https://afpsiembrafileshare.file.core.windows.net/notificaciones/EDC/Historico/2023_12/EDC_MONEDAS.gif?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2029-11-01T23:58:32Z&st=2023-09-12T15:58:32Z&spr=https&sig=ZVVaA%2BrSZVm95YCa8XyESWzNIDmYd6BV%2Fc%2FZyt7flUE%3D';
+	const response = await axiosModule.get(uri, { ...imageRequestOptions });
+	return response;
+};
+
+const getEdcElementsFooterImage = async () => {
+	const uri = 'https://afpsiembrafileshare.file.core.windows.net/notificaciones/EDC/Historico/2023_12/EDC_ELEMENTOS.png?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2029-11-01T23:58:32Z&st=2023-09-12T15:58:32Z&spr=https&sig=ZVVaA%2BrSZVm95YCa8XyESWzNIDmYd6BV%2Fc%2FZyt7flUE%3D';
+	const response = await axiosModule.get(uri, { ...imageRequestOptions });
 	return response;
 };
 
@@ -266,21 +277,34 @@ const server = httpModule.createServer((request, response) => {
 						    data: edcData,
 						} } = edcObjectData;
 
-						// const edcPeriodsResponse = await getEdcPeriods(userDni);
-						// const edcPeriodsObjectData = edcPeriodsResponse.data;
-						// if(!edcPeriodsObjectData || !edcPeriodsObjectData.payload || !edcPeriodsObjectData.payload.data) {
-						//     badRequest(response, 'API AFP Siembra Failed');
-						//     return;
-						// }
-						// const { payload: {
-						//     data: edcPeriods,
-						// } } = edcPeriodsObjectData;
+						const edcHistoricImageResponse = await getEdcHistoricImage();
+						if (!edcHistoricImageResponse || !edcHistoricImageResponse.data) {
+							badRequest(response, 'IMAGE_1_FAILED');
+							return;
+						}
+						const { data: edcHistoricImageData } = edcHistoricImageResponse;
+						const edcHistoricImageBuffer = Buffer.from(edcHistoricImageData);
+						const edcHistoricImageBufferPng = await sharpModule(edcHistoricImageBuffer).toFormat('png').toBuffer();
+
+						const edcCurrencyImageResponse = await getEdcCurrencyImage();
+						if (!edcCurrencyImageResponse || !edcCurrencyImageResponse.data) {
+							badRequest(response, 'IMAGE_2_FAILED');
+							return;
+						}
+						const { data: edcCurrencyImageData } = edcCurrencyImageResponse;
+						const edcCurrencyImageBuffer = Buffer.from(edcCurrencyImageData);
+						const edcCurrencyImageBufferPng = await sharpModule(edcCurrencyImageBuffer).toFormat('png').toBuffer();
+
+						const edcElementsFooterImageResponse = await getEdcElementsFooterImage();
+						if (!edcElementsFooterImageResponse || !edcElementsFooterImageResponse.data) {
+							badRequest(response, 'IMAGE_3_FAILED');
+							return;
+						}
+						const { data: edcElementsFooterImageData } = edcElementsFooterImageResponse;
+						const edcElementsFooterImageBuffer = Buffer.from(edcElementsFooterImageData);
+						const edcElementsFooterImageBufferPng = await sharpModule(edcElementsFooterImageBuffer).toFormat('png').toBuffer();
 
 						const {
-							numLote,
-							periodo,
-							codCuenta,
-							codUsuario,
 							fecDesde,
 							fecHasta,
 							nomCliente,
@@ -290,67 +314,55 @@ const server = httpModule.createServer((request, response) => {
 							direccion2,
 							direccion3,
 							direccion4,
-							idNss,
 							canMesesAfiliado,
 							canCotizaciones,
 							fecAfiliacion,
-							directorioImagenes,
-							cortes,
 							cortes: [
 								{
-									orden: orden_0,
 									concepto: concepto_0,
 									mtoMesAnio01: mtoMesAnio01_0,
 									mtoMesAnio02: mtoMesAnio02_0,
 									mtoMesAnio03: mtoMesAnio03_0,
 								},
 								{
-									orden: orden_1,
 									concepto: concepto_1,
 									mtoMesAnio01: mtoMesAnio01_1,
 									mtoMesAnio02: mtoMesAnio02_1,
 									mtoMesAnio03: mtoMesAnio03_1,
 								},
 								{
-									orden: orden_2,
 									concepto: concepto_2,
 									mtoMesAnio01: mtoMesAnio01_2,
 									mtoMesAnio02: mtoMesAnio02_2,
 									mtoMesAnio03: mtoMesAnio03_2,
 								},
 								{
-									orden: orden_3,
 									concepto: concepto_3,
 									mtoMesAnio01: mtoMesAnio01_3,
 									mtoMesAnio02: mtoMesAnio02_3,
 									mtoMesAnio03: mtoMesAnio03_3,
 								},
 								{
-									orden: orden_4,
 									concepto: concepto_4,
 									mtoMesAnio01: mtoMesAnio01_4,
 									mtoMesAnio02: mtoMesAnio02_4,
 									mtoMesAnio03: mtoMesAnio03_4,
 								},
 								{
-									orden: orden_5,
 									concepto: concepto_5,
 									mtoMesAnio01: mtoMesAnio01_5,
 									mtoMesAnio02: mtoMesAnio02_5,
 									mtoMesAnio03: mtoMesAnio03_5,
 								},
 							],
-							saldos,
 							saldos: [
 								{ mtoSaldo: mtoSaldo1 },
 								{ mtoSaldo: mtoSaldo2 },
 								{ mtoSaldo: mtoSaldo3 },
 								{ mtoSaldo: mtoSaldo4 },
 							],
-							movimientos,
 							movimientos: [
 								{
-									orden: orden_00,
 									concepto: concepto_00,
 									mtoMes1: mtoMes1_00,
 									mtoMes2: mtoMes2_00,
@@ -360,7 +372,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_00,
 								},
 								{
-									orden: orden_01,
 									concepto: concepto_01,
 									mtoMes1: mtoMes1_01,
 									mtoMes2: mtoMes2_01,
@@ -370,7 +381,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_01,
 								},
 								{
-									orden: orden_02,
 									concepto: concepto_02,
 									mtoMes1: mtoMes1_02,
 									mtoMes2: mtoMes2_02,
@@ -380,7 +390,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_02,
 								},
 								{
-									orden: orden_03,
 									concepto: concepto_03,
 									mtoMes1: mtoMes1_03,
 									mtoMes2: mtoMes2_03,
@@ -390,7 +399,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_03,
 								},
 								{
-									orden: orden_04,
 									concepto: concepto_04,
 									mtoMes1: mtoMes1_04,
 									mtoMes2: mtoMes2_04,
@@ -400,7 +408,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_04,
 								},
 								{
-									orden: orden_05,
 									concepto: concepto_05,
 									mtoMes1: mtoMes1_05,
 									mtoMes2: mtoMes2_05,
@@ -410,7 +417,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_05,
 								},
 								{
-									orden: orden_06,
 									concepto: concepto_06,
 									mtoMes1: mtoMes1_06,
 									mtoMes2: mtoMes2_06,
@@ -420,7 +426,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_06,
 								},
 								{
-									orden: orden_07,
 									concepto: concepto_07,
 									mtoMes1: mtoMes1_07,
 									mtoMes2: mtoMes2_07,
@@ -430,7 +435,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_07,
 								},
 								{
-									orden: orden_08,
 									concepto: concepto_08,
 									mtoMes1: mtoMes1_08,
 									mtoMes2: mtoMes2_08,
@@ -440,7 +444,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_08,
 								},
 								{
-									orden: orden_09,
 									concepto: concepto_09,
 									mtoMes1: mtoMes1_09,
 									mtoMes2: mtoMes2_09,
@@ -450,7 +453,6 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_09,
 								},
 								{
-									orden: orden_010,
 									concepto: concepto_010,
 									mtoMes1: mtoMes1_010,
 									mtoMes2: mtoMes2_010,
@@ -460,13 +462,7 @@ const server = httpModule.createServer((request, response) => {
 									mtoMes6: mtoMes6_010,
 								},
 							],
-							fondos,
 							fondos: {
-								mtoSaldoIni,
-								totMovimientos,
-								mtoRendimiento,
-								mtoEgresos,
-								mtoSaldoFin,
 								fechaCorte,
 								pctComisComp,
 								totalComisiones,
@@ -476,13 +472,10 @@ const server = httpModule.createServer((request, response) => {
 							},
 						} = edcData;
 
-						// const { } = edcPeriods;
-
 						const format = urlQueryParams['response-format'];
 
 						const filesFolder = `${__dirname}/assets`;
 						const pdfFolder = `${filesFolder}/pdf/`;
-						const imgFolder = `${filesFolder}/img/`;
 
 						const fileTemplateName = 'account-status-template.pdf';
 						const fileTemplatePath = pathModule.join(pdfFolder, fileTemplateName);
@@ -490,26 +483,12 @@ const server = httpModule.createServer((request, response) => {
 						const fileFilledName = 'account-status-filled.pdf';
 						const fileFilledPath = pathModule.join(pdfFolder, fileFilledName);
 
-						const footerImgName = 'account-status-footer.png';
-						const footerImgPath = pathModule.join(imgFolder, footerImgName);
-
-						const chartToolImgName = 'chart-tool.png';
-						const chartToolImgPath = pathModule.join(imgFolder, chartToolImgName);
-
-						const chartCurrencyImgName = 'chart-currency.png';
-						const chartCurrencyImgPath = pathModule.join(imgFolder, chartCurrencyImgName);
-
 						const fileArrayBuffer = fileStreamModule.readFileSync(fileTemplatePath);
 						const filePdf = await PDFDocument.load(fileArrayBuffer);
 
-						const footerImgArrayBuffer = fileStreamModule.readFileSync(footerImgPath);
-						const footerImg = await filePdf.embedPng(footerImgArrayBuffer);
-
-						const chartToolImgArrayBuffer = fileStreamModule.readFileSync(chartToolImgPath);
-						const chartToolImg = await filePdf.embedPng(chartToolImgArrayBuffer);
-
-						const chartCurrencyImgArrayBuffer = fileStreamModule.readFileSync(chartCurrencyImgPath);
-						const chartCurrencyImg = await filePdf.embedPng(chartCurrencyImgArrayBuffer);
+						const edcHistoricImageBufferPngPdf = await filePdf.embedPng(edcHistoricImageBufferPng);
+						const edcCurrencyImageBufferPngPdf = await filePdf.embedPng(edcCurrencyImageBufferPng);
+						const edcElementsFooterImageBufferPngPdf = await filePdf.embedPng(edcElementsFooterImageBufferPng);
 
 						const helveticaBoldFont = await filePdf.embedFont(StandardFonts.HelveticaBold);
 						const helveticaFont = await filePdf.embedFont(StandardFonts.Helvetica);
@@ -1165,25 +1144,25 @@ const server = httpModule.createServer((request, response) => {
 						});
 						accountDetailAnnotations.push(accountDetailHyperlink);
 
-						pdfFirstPage.drawImage(footerImg, {
+						pdfFirstPage.drawImage(edcHistoricImageBufferPngPdf, {
+							x: 360,
+							y: 220,
+							width: 220,
+							height: 90,
+						});
+
+						pdfFirstPage.drawImage(edcCurrencyImageBufferPngPdf, {
+							x: 360,
+							y: 100,
+							width: 220,
+							height: 90,
+						});
+
+						pdfFirstPage.drawImage(edcElementsFooterImageBufferPngPdf, {
 							x: 40,
 							y: 40,
-							width: firstPageWidth - 80,
-							height: firstPageHeight - 752,
-						});
-
-						pdfFirstPage.drawImage(chartToolImg, {
-							x: (firstPageWidth / 2) + 55,
-							y: firstPageHeight / 2 - 175,
-							width: (firstPageWidth - 80) * 0.4,
-							height: (firstPageHeight - 752) * 2,
-						});
-
-						pdfFirstPage.drawImage(chartCurrencyImg, {
-							x: (firstPageWidth / 2) + 55,
-							y: firstPageHeight / 2 - 270,
-							width: (firstPageWidth - 80) * 0.4,
-							height: (firstPageHeight - 752) * 2,
+							width: 532,
+							height: 40,
 						});
 
 						const pdfBytes = await filePdf.save();
@@ -1193,7 +1172,6 @@ const server = httpModule.createServer((request, response) => {
 						}
 
 						fileStreamModule.writeFileSync(fileFilledPath, pdfBytes);
-
 
 						switch (format) {
 							case responseFormat.BASE64:
@@ -1221,7 +1199,8 @@ const server = httpModule.createServer((request, response) => {
 						}
 					} catch (error) {
 						console.error(error);
-						badRequest(response, error.message);
+						const { message: errorMessage } = error;
+						badRequest(response, errorMessage);
 						return;
 					}
 				});
