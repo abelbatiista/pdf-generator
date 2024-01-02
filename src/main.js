@@ -501,9 +501,6 @@ const server = httpModule.createServer((request, response) => {
 						const edcCurrencyImageBufferPngPdf = await filePdf.embedPng(edcCurrencyImageBufferPng);
 						const edcElementsFooterImageBufferPngPdf = await filePdf.embedPng(edcElementsFooterImageBufferPng);
 
-						const helveticaBoldFont = await filePdf.embedFont(StandardFonts.HelveticaBold);
-						const helveticaFont = await filePdf.embedFont(StandardFonts.Helvetica);
-
 						const evaProBlackFont = await filePdf.embedFont(evaProBlackFontBytes);
 						const evaProBlondFont = await filePdf.embedFont(evaProBlondFontBytes);
 
@@ -511,55 +508,55 @@ const server = httpModule.createServer((request, response) => {
 						const pdfFirstPage = pdfPages[0];
 						const { width: firstPageWidth, height: firstPageHeight } = pdfFirstPage.getSize();
 
-						const firstFontSize = 8;
-						const secondFontSize = 7;
-						const thirdFontSize = 6;
-						const fourthFontSize = 5;
+						const firstFontSize = 9;
+						const secondFontSize = 8;
+						const thirdFontSize = 7;
+						const fourthFontSize = 6;
 
 						const initialAmountNumber = parseCommasToNumber(mtoSaldo1);
 						const initialAmountParsed = parseToCurrency(initialAmountNumber) || parseToCurrency(Math.random() * 50000);
-						const initialAmountSize = helveticaBoldFont.widthOfTextAtSize(initialAmountParsed, firstFontSize);
+						const initialAmountSize = evaProBlackFont.widthOfTextAtSize(initialAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(initialAmountParsed, {
 							x: firstPageWidth - 480 - initialAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: helveticaBoldFont,
+							font: evaProBlackFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
 
 						const periodAmountNumber = parseCommasToNumber(mtoSaldo2);
 						const periodAmountParsed = parseToCurrency(periodAmountNumber) || parseToCurrency(Math.random() * 10000);
-						const periodAmountSize = helveticaBoldFont.widthOfTextAtSize(periodAmountParsed, firstFontSize);
+						const periodAmountSize = evaProBlackFont.widthOfTextAtSize(periodAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(periodAmountParsed, {
 							x: firstPageWidth - 372 - periodAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: helveticaBoldFont,
+							font: evaProBlackFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
 
 						const periodPerformanceAmountNumber = parseCommasToNumber(mtoSaldo3);
 						const periodPerformanceAmountParsed = parseToCurrency(periodPerformanceAmountNumber) || parseToCurrency(Math.random() * 1000);
-						const periodPerformanceAmountSize = helveticaBoldFont.widthOfTextAtSize(periodPerformanceAmountParsed, firstFontSize);
+						const periodPerformanceAmountSize = evaProBlackFont.widthOfTextAtSize(periodPerformanceAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(periodPerformanceAmountParsed, {
 							x: firstPageWidth - 264 - periodPerformanceAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: helveticaBoldFont,
+							font: evaProBlackFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
 
 						const expensesNumber = parseCommasToNumber(mtoSaldo4);
 						const expensesParsed = parseToCurrency(expensesNumber) || parseToCurrency(Math.random() * 10000);
-						const expensesSize = helveticaBoldFont.widthOfTextAtSize(expensesParsed, firstFontSize);
+						const expensesSize = evaProBlackFont.widthOfTextAtSize(expensesParsed, firstFontSize);
 						pdfFirstPage.drawText(expensesParsed, {
 							x: firstPageWidth - 156 - expensesSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: helveticaBoldFont,
+							font: evaProBlackFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
@@ -572,12 +569,12 @@ const server = httpModule.createServer((request, response) => {
 						const individualAmountParsed 
 							= parseToCurrency(individualAmountNumber)
 							|| parseToCurrency(Math.random() * 1000000);
-						const individualAmountSize = helveticaBoldFont.widthOfTextAtSize(individualAmountParsed, firstFontSize);
+						const individualAmountSize = evaProBlackFont.widthOfTextAtSize(individualAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(individualAmountParsed, {
 							x: firstPageWidth - 48 - individualAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: helveticaBoldFont,
+							font: evaProBlackFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 
@@ -602,7 +599,7 @@ const server = httpModule.createServer((request, response) => {
 								x: widthValue,
 								y: heightValue,
 								size: thirdFontSize,
-								font: helveticaFont,
+								font: evaProBlondFont,
 								color: rgb(1, 1, 1),
 								rotate: degrees(0),
 							});
@@ -617,7 +614,7 @@ const server = httpModule.createServer((request, response) => {
 							x: 40,
 							y: firstPageHeight - 140,
 							size: firstFontSize,
-							font: helveticaBoldFont,
+							font: evaProBlackFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
@@ -665,8 +662,8 @@ const server = httpModule.createServer((request, response) => {
 
 						informationTable.forEach((firstValue, firstIndex, firstArray) => {
 							firstValue.forEach((secondValue, secondIndex) => {
-								const fontValue = firstIndex === 0 ? helveticaBoldFont : helveticaFont;
-								const keyWidth = firstIndex === 0 ? 0 : helveticaBoldFont.widthOfTextAtSize(firstArray[0][secondIndex], secondFontSize);
+								const fontValue = firstIndex === 0 ? evaProBlackFont : evaProBlondFont;
+								const keyWidth = firstIndex === 0 ? 0 : evaProBlackFont.widthOfTextAtSize(firstArray[0][secondIndex], secondFontSize);
 								const widthValue = secondIndex <= 3 ? 40 : 260;
 								const heightConstant = 160;
 								const heighitMultiple = 12;
@@ -864,7 +861,7 @@ const server = httpModule.createServer((request, response) => {
 						movementsTable.forEach((firstValue, firstIndex) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const especialTitles = [0, 8, 9, 10];
-								const fontValue = especialTitles.includes(secondIndex) ? helveticaBoldFont : helveticaFont;
+								const fontValue = especialTitles.includes(secondIndex) ? evaProBlackFont : evaProBlondFont;
 								const fontWidth = fontValue.widthOfTextAtSize(secondValue, secondFontSize);
 								const widthConstant = 40;
 								const widthSpecial = 195;
@@ -952,7 +949,7 @@ const server = httpModule.createServer((request, response) => {
 						periodsTable.forEach((firstValue, firstIndex) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const especialTitles = [0, 5,];
-								const fontValue = especialTitles.includes(secondIndex) ? helveticaBoldFont : helveticaFont;
+								const fontValue = especialTitles.includes(secondIndex) ? evaProBlackFont : evaProBlondFont;
 								const fontWidth = fontValue.widthOfTextAtSize(secondValue, secondFontSize);
 								const widthConstant = 45;
 								const widthSpecial = 170;
@@ -993,7 +990,7 @@ const server = httpModule.createServer((request, response) => {
 								x: widthValue,
 								y: heightValue,
 								size: secondFontSize,
-								font: helveticaFont,
+								font: evaProBlondFont,
 								color: rgb(0, 0, 0),
 								rotate: degrees(0),
 							});
@@ -1017,7 +1014,7 @@ const server = httpModule.createServer((request, response) => {
 								x: widthValue,
 								y: heightValue,
 								size: fourthFontSize,
-								font: helveticaFont,
+								font: evaProBlondFont,
 								color: rgb(0, 0, 0),
 								rotate: degrees(0),
 							});
@@ -1049,7 +1046,7 @@ const server = httpModule.createServer((request, response) => {
 						effectivenessTable.forEach((firstValue, firstIndex) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const especialTitles = [2];
-								const fontValue = especialTitles.includes(secondIndex) ? helveticaBoldFont : helveticaFont;
+								const fontValue = especialTitles.includes(secondIndex) ? evaProBlackFont : evaProBlondFont;
 								const fontWidth = fontValue.widthOfTextAtSize(secondValue, secondFontSize);
 								const widthConstant = 45;
 								const widthSpecial = 283;
@@ -1089,13 +1086,13 @@ const server = httpModule.createServer((request, response) => {
 						textsFooterTable.forEach((firstValue, firstIndex, firstArray) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const fontColor = firstIndex === 0 ? rgb(0 / 255, 94 / 255, 184 / 255) : rgb(0, 0, 0);
-								const fontValue = firstIndex === 0 ? helveticaBoldFont : helveticaFont;
+								const fontValue = firstIndex === 0 ? evaProBlackFont : evaProBlondFont;
 								const widthConstant = secondIndex === 0 ? 65 : 171;
 								const fontWidth = fontValue.widthOfTextAtSize(firstArray[0][secondIndex], thirdFontSize);
 								const witdhRange = firstIndex === 0 ? 0 : fontWidth + 5;
 								const widthValue = widthConstant + witdhRange;
 								const heightConstant = 760;
-								const heightMultiple = 7;
+								const heightMultiple = 9;
 								const heightValue = firstPageHeight - heightConstant - (heightMultiple * secondIndex);
 								pdfFirstPage.drawText(secondValue, {
 									x: widthValue,
@@ -1109,15 +1106,15 @@ const server = httpModule.createServer((request, response) => {
 						});
 
 						const textAccountDataDetail = 'Conoce detalladamente tu estado de cuenta, haz clic aquí para visualizar el instructivo';
-						const textAccountDataDetailWidthSize = helveticaBoldFont.widthOfTextAtSize(textAccountDataDetail, thirdFontSize);
-						const textAccountDataDetailHeightSize = helveticaBoldFont.heightAtSize(thirdFontSize);
+						const textAccountDataDetailWidthSize = evaProBlackFont.widthOfTextAtSize(textAccountDataDetail, thirdFontSize);
+						const textAccountDataDetailHeightSize = evaProBlackFont.heightAtSize(thirdFontSize);
 						const textAccountDataDetailWidth = (firstPageWidth - textAccountDataDetailWidthSize) / 2;
-						const textAccountDataDetailHeight = firstPageHeight - 774;
+						const textAccountDataDetailHeight = firstPageHeight - 778;
 						pdfFirstPage.drawText(textAccountDataDetail, {
 							x: textAccountDataDetailWidth,
 							y: textAccountDataDetailHeight,
 							size: thirdFontSize,
-							font: helveticaBoldFont,
+							font: evaProBlackFont,
 							color: rgb(0 / 255, 94 / 255, 184 / 255),
 							rotate: degrees(0),
 						});
