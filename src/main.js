@@ -3,6 +3,7 @@ const fileStreamModule = require('fs');
 const pathModule = require('path');
 const urlModule = require('url');
 const pdfModule = require('pdf-lib');
+const fontkitModule = require('@pdf-lib/fontkit');
 const { degrees, PDFDocument, rgb, StandardFonts } = pdfModule;
 const axiosModule = require('axios');
 const uuidModule = require('uuid');
@@ -264,7 +265,6 @@ const server = httpModule.createServer((request, response) => {
 							accountCode,
 							period,
 							batchNumber,
-							userDni,
 						} = JSON.parse(bodyString);
 
 						const edcDataResponse = await getEdcData(accountCode, period, batchNumber);
@@ -476,6 +476,7 @@ const server = httpModule.createServer((request, response) => {
 
 						const filesFolder = `${__dirname}/assets`;
 						const pdfFolder = `${filesFolder}/pdf/`;
+						const fontsFolder = `${filesFolder}/fonts/`;
 
 						const fileTemplateName = 'account-status-template.pdf';
 						const fileTemplatePath = pathModule.join(pdfFolder, fileTemplateName);
@@ -483,8 +484,18 @@ const server = httpModule.createServer((request, response) => {
 						const fileFilledName = 'account-status-filled.pdf';
 						const fileFilledPath = pathModule.join(pdfFolder, fileFilledName);
 
+						const evaProBlackFontName = 'eva-pro-black.otf';
+						const evaProBlackFontPath = pathModule.join(fontsFolder, evaProBlackFontName);
+						const evaProBlackFontBytes = fileStreamModule.readFileSync(evaProBlackFontPath);
+
+						const evaProBlondFontName = 'eva-pro-blond.otf';
+						const evaProBlondFontPath = pathModule.join(fontsFolder, evaProBlondFontName);
+						const evaProBlondFontBytes = fileStreamModule.readFileSync(evaProBlondFontPath);
+
 						const fileArrayBuffer = fileStreamModule.readFileSync(fileTemplatePath);
 						const filePdf = await PDFDocument.load(fileArrayBuffer);
+
+						filePdf.registerFontkit(fontkitModule);
 
 						const edcHistoricImageBufferPngPdf = await filePdf.embedPng(edcHistoricImageBufferPng);
 						const edcCurrencyImageBufferPngPdf = await filePdf.embedPng(edcCurrencyImageBufferPng);
@@ -492,6 +503,9 @@ const server = httpModule.createServer((request, response) => {
 
 						const helveticaBoldFont = await filePdf.embedFont(StandardFonts.HelveticaBold);
 						const helveticaFont = await filePdf.embedFont(StandardFonts.Helvetica);
+
+						const evaProBlackFont = await filePdf.embedFont(evaProBlackFontBytes);
+						const evaProBlondFont = await filePdf.embedFont(evaProBlondFontBytes);
 
 						const pdfPages = filePdf.getPages();
 						const pdfFirstPage = pdfPages[0];
