@@ -4,7 +4,7 @@ const pathModule = require('path');
 const urlModule = require('url');
 const pdfModule = require('pdf-lib');
 const fontkitModule = require('@pdf-lib/fontkit');
-const { degrees, PDFDocument, rgb, StandardFonts } = pdfModule;
+const { degrees, PDFDocument, rgb, } = pdfModule;
 const axiosModule = require('axios');
 const uuidModule = require('uuid');
 const { v4: uuidv4 } = uuidModule;
@@ -484,13 +484,21 @@ const server = httpModule.createServer((request, response) => {
 						const fileFilledName = 'account-status-filled.pdf';
 						const fileFilledPath = pathModule.join(pdfFolder, fileFilledName);
 
-						const evaProBlackFontName = 'eva-pro-black.otf';
-						const evaProBlackFontPath = pathModule.join(fontsFolder, evaProBlackFontName);
-						const evaProBlackFontBytes = fileStreamModule.readFileSync(evaProBlackFontPath);
+						const evaProLightFontName = 'eva-pro-light.otf';
+						const evaProLightFontPath = pathModule.join(fontsFolder, evaProLightFontName);
+						const evaProLightFontBytes = fileStreamModule.readFileSync(evaProLightFontPath);
 
-						const evaProBlondFontName = 'eva-pro-blond.otf';
-						const evaProBlondFontPath = pathModule.join(fontsFolder, evaProBlondFontName);
-						const evaProBlondFontBytes = fileStreamModule.readFileSync(evaProBlondFontPath);
+						const evaProNormalFontName = 'eva-pro-normal.otf';
+						const evaProNormalFontPath = pathModule.join(fontsFolder, evaProNormalFontName);
+						const evaProNormalFontBytes = fileStreamModule.readFileSync(evaProNormalFontPath);
+
+						const evaProSemiboldFontName = 'eva-pro-semibold.otf';
+						const evaProSemiboldFontPath = pathModule.join(fontsFolder, evaProSemiboldFontName);
+						const evaProSemiboldFontBytes = fileStreamModule.readFileSync(evaProSemiboldFontPath);
+
+						const evaProBoldFontName = 'eva-pro-bold.otf';
+						const evaProBoldFontPath = pathModule.join(fontsFolder, evaProBoldFontName);
+						const evaProBoldFontBytes = fileStreamModule.readFileSync(evaProBoldFontPath);
 
 						const fileArrayBuffer = fileStreamModule.readFileSync(fileTemplatePath);
 						const filePdf = await PDFDocument.load(fileArrayBuffer);
@@ -501,8 +509,10 @@ const server = httpModule.createServer((request, response) => {
 						const edcCurrencyImageBufferPngPdf = await filePdf.embedPng(edcCurrencyImageBufferPng);
 						const edcElementsFooterImageBufferPngPdf = await filePdf.embedPng(edcElementsFooterImageBufferPng);
 
-						const evaProBlackFont = await filePdf.embedFont(evaProBlackFontBytes);
-						const evaProBlondFont = await filePdf.embedFont(evaProBlondFontBytes);
+						const evaProLightFont = await filePdf.embedFont(evaProLightFontBytes);
+						const evaProNormalFont = await filePdf.embedFont(evaProNormalFontBytes);
+						const evaProSemiboldFont = await filePdf.embedFont(evaProSemiboldFontBytes);
+						const evaProBoldFont = await filePdf.embedFont(evaProBoldFontBytes);
 
 						const pdfPages = filePdf.getPages();
 						const pdfFirstPage = pdfPages[0];
@@ -515,48 +525,48 @@ const server = httpModule.createServer((request, response) => {
 
 						const initialAmountNumber = parseCommasToNumber(mtoSaldo1);
 						const initialAmountParsed = parseToCurrency(initialAmountNumber) || parseToCurrency(Math.random() * 50000);
-						const initialAmountSize = evaProBlackFont.widthOfTextAtSize(initialAmountParsed, firstFontSize);
+						const initialAmountSize = evaProSemiboldFont.widthOfTextAtSize(initialAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(initialAmountParsed, {
 							x: firstPageWidth - 480 - initialAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: evaProBlackFont,
+							font: evaProSemiboldFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
 
 						const periodAmountNumber = parseCommasToNumber(mtoSaldo2);
 						const periodAmountParsed = parseToCurrency(periodAmountNumber) || parseToCurrency(Math.random() * 10000);
-						const periodAmountSize = evaProBlackFont.widthOfTextAtSize(periodAmountParsed, firstFontSize);
+						const periodAmountSize = evaProSemiboldFont.widthOfTextAtSize(periodAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(periodAmountParsed, {
 							x: firstPageWidth - 372 - periodAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: evaProBlackFont,
+							font: evaProSemiboldFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
 
 						const periodPerformanceAmountNumber = parseCommasToNumber(mtoSaldo3);
 						const periodPerformanceAmountParsed = parseToCurrency(periodPerformanceAmountNumber) || parseToCurrency(Math.random() * 1000);
-						const periodPerformanceAmountSize = evaProBlackFont.widthOfTextAtSize(periodPerformanceAmountParsed, firstFontSize);
+						const periodPerformanceAmountSize = evaProSemiboldFont.widthOfTextAtSize(periodPerformanceAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(periodPerformanceAmountParsed, {
 							x: firstPageWidth - 264 - periodPerformanceAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: evaProBlackFont,
+							font: evaProSemiboldFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
 
 						const expensesNumber = parseCommasToNumber(mtoSaldo4);
 						const expensesParsed = parseToCurrency(expensesNumber) || parseToCurrency(Math.random() * 10000);
-						const expensesSize = evaProBlackFont.widthOfTextAtSize(expensesParsed, firstFontSize);
+						const expensesSize = evaProSemiboldFont.widthOfTextAtSize(expensesParsed, firstFontSize);
 						pdfFirstPage.drawText(expensesParsed, {
 							x: firstPageWidth - 156 - expensesSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: evaProBlackFont,
+							font: evaProSemiboldFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
@@ -569,12 +579,12 @@ const server = httpModule.createServer((request, response) => {
 						const individualAmountParsed 
 							= parseToCurrency(individualAmountNumber)
 							|| parseToCurrency(Math.random() * 1000000);
-						const individualAmountSize = evaProBlackFont.widthOfTextAtSize(individualAmountParsed, firstFontSize);
+						const individualAmountSize = evaProSemiboldFont.widthOfTextAtSize(individualAmountParsed, firstFontSize);
 						pdfFirstPage.drawText(individualAmountParsed, {
 							x: firstPageWidth - 48 - individualAmountSize,
 							y: firstPageHeight - 283,
 							size: firstFontSize,
-							font: evaProBlackFont,
+							font: evaProSemiboldFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 
@@ -599,7 +609,7 @@ const server = httpModule.createServer((request, response) => {
 								x: widthValue,
 								y: heightValue,
 								size: thirdFontSize,
-								font: evaProBlondFont,
+								font: evaProNormalFont,
 								color: rgb(1, 1, 1),
 								rotate: degrees(0),
 							});
@@ -614,7 +624,7 @@ const server = httpModule.createServer((request, response) => {
 							x: 40,
 							y: firstPageHeight - 140,
 							size: firstFontSize,
-							font: evaProBlackFont,
+							font: evaProSemiboldFont,
 							color: rgb(0, 0, 0),
 							rotate: degrees(0),
 						});
@@ -662,8 +672,8 @@ const server = httpModule.createServer((request, response) => {
 
 						informationTable.forEach((firstValue, firstIndex, firstArray) => {
 							firstValue.forEach((secondValue, secondIndex) => {
-								const fontValue = firstIndex === 0 ? evaProBlackFont : evaProBlondFont;
-								const keyWidth = firstIndex === 0 ? 0 : evaProBlackFont.widthOfTextAtSize(firstArray[0][secondIndex], secondFontSize);
+								const fontValue = firstIndex === 0 ? evaProSemiboldFont : evaProNormalFont;
+								const keyWidth = firstIndex === 0 ? 0 : evaProSemiboldFont.widthOfTextAtSize(firstArray[0][secondIndex], secondFontSize);
 								const widthValue = secondIndex <= 3 ? 40 : 260;
 								const heightConstant = 160;
 								const heighitMultiple = 12;
@@ -861,7 +871,7 @@ const server = httpModule.createServer((request, response) => {
 						movementsTable.forEach((firstValue, firstIndex) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const especialTitles = [0, 8, 9, 10];
-								const fontValue = especialTitles.includes(secondIndex) ? evaProBlackFont : evaProBlondFont;
+								const fontValue = especialTitles.includes(secondIndex) ? evaProSemiboldFont : evaProNormalFont;
 								const fontWidth = fontValue.widthOfTextAtSize(secondValue, secondFontSize);
 								const widthConstant = 40;
 								const widthSpecial = 195;
@@ -949,7 +959,7 @@ const server = httpModule.createServer((request, response) => {
 						periodsTable.forEach((firstValue, firstIndex) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const especialTitles = [0, 5,];
-								const fontValue = especialTitles.includes(secondIndex) ? evaProBlackFont : evaProBlondFont;
+								const fontValue = especialTitles.includes(secondIndex) ? evaProSemiboldFont : evaProNormalFont;
 								const fontWidth = fontValue.widthOfTextAtSize(secondValue, secondFontSize);
 								const widthConstant = 45;
 								const widthSpecial = 170;
@@ -990,7 +1000,7 @@ const server = httpModule.createServer((request, response) => {
 								x: widthValue,
 								y: heightValue,
 								size: secondFontSize,
-								font: evaProBlondFont,
+								font: evaProNormalFont,
 								color: rgb(0, 0, 0),
 								rotate: degrees(0),
 							});
@@ -1014,7 +1024,7 @@ const server = httpModule.createServer((request, response) => {
 								x: widthValue,
 								y: heightValue,
 								size: fourthFontSize,
-								font: evaProBlondFont,
+								font: evaProNormalFont,
 								color: rgb(0, 0, 0),
 								rotate: degrees(0),
 							});
@@ -1046,7 +1056,7 @@ const server = httpModule.createServer((request, response) => {
 						effectivenessTable.forEach((firstValue, firstIndex) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const especialTitles = [2];
-								const fontValue = especialTitles.includes(secondIndex) ? evaProBlackFont : evaProBlondFont;
+								const fontValue = especialTitles.includes(secondIndex) ? evaProSemiboldFont : evaProNormalFont;
 								const fontWidth = fontValue.widthOfTextAtSize(secondValue, secondFontSize);
 								const widthConstant = 45;
 								const widthSpecial = 283;
@@ -1086,7 +1096,7 @@ const server = httpModule.createServer((request, response) => {
 						textsFooterTable.forEach((firstValue, firstIndex, firstArray) => {
 							firstValue.forEach((secondValue, secondIndex) => {
 								const fontColor = firstIndex === 0 ? rgb(0 / 255, 94 / 255, 184 / 255) : rgb(0, 0, 0);
-								const fontValue = firstIndex === 0 ? evaProBlackFont : evaProBlondFont;
+								const fontValue = firstIndex === 0 ? evaProSemiboldFont : evaProNormalFont;
 								const widthConstant = secondIndex === 0 ? 65 : 171;
 								const fontWidth = fontValue.widthOfTextAtSize(firstArray[0][secondIndex], thirdFontSize);
 								const witdhRange = firstIndex === 0 ? 0 : fontWidth + 5;
@@ -1106,15 +1116,15 @@ const server = httpModule.createServer((request, response) => {
 						});
 
 						const textAccountDataDetail = 'Conoce detalladamente tu estado de cuenta, haz clic aquí para visualizar el instructivo';
-						const textAccountDataDetailWidthSize = evaProBlackFont.widthOfTextAtSize(textAccountDataDetail, thirdFontSize);
-						const textAccountDataDetailHeightSize = evaProBlackFont.heightAtSize(thirdFontSize);
+						const textAccountDataDetailWidthSize = evaProSemiboldFont.widthOfTextAtSize(textAccountDataDetail, thirdFontSize);
+						const textAccountDataDetailHeightSize = evaProSemiboldFont.heightAtSize(thirdFontSize);
 						const textAccountDataDetailWidth = (firstPageWidth - textAccountDataDetailWidthSize) / 2;
 						const textAccountDataDetailHeight = firstPageHeight - 778;
 						pdfFirstPage.drawText(textAccountDataDetail, {
 							x: textAccountDataDetailWidth,
 							y: textAccountDataDetailHeight,
 							size: thirdFontSize,
-							font: evaProBlackFont,
+							font: evaProSemiboldFont,
 							color: rgb(0 / 255, 94 / 255, 184 / 255),
 							rotate: degrees(0),
 						});
@@ -1177,6 +1187,7 @@ const server = httpModule.createServer((request, response) => {
 						});
 
 						const pdfBytes = await filePdf.save();
+						const pdfBuffer = Buffer.from(pdfBytes);
 
 						if (fileStreamModule.existsSync(fileFilledPath)) {
 							fileStreamModule.unlinkSync(fileFilledPath);
